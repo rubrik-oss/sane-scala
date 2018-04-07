@@ -1,0 +1,41 @@
+language: scala
+
+branches:
+  only:
+    - master
+
+script:
+  - sbt +package
+
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "Sujeet Kausallya Gholap"
+  - git config --local user.email "sujeetgholap+travis@gmail.com"
+  - git tag "$(get-version.sh)"
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  overwrite: true
+  file_glob: true
+  file:
+    - target/scala-2.11/sane-scala_2.11-*.jar
+    - target/scala-2.12/sane-scala_2.12-*.jar
+  api_key:
+    secure:
+      "DIW1niVftSbZVD9lbZNOIlNqlQIrX+x1k5cBSIwfTWGJBQYpIcxS56d3\
+       1ptQ0Ed5SGngSbC0nzOcbjN4BVLgseEpDssZbQBBtzkisGT5R+YCDLTm\
+       WS6WfkLqv56HbHhISVo0oS0eGQDIqWWiDPBBt1XDVIq/ReQubf/HtbIP\
+       VcjHoDZAEt37055o//QyRs8it5KcZsOvrmI0TPHNMk3uG2uysvDx+E+N\
+       prKDPmVssQlqUckjdjdjvLmdC4mwiL4O/lkK9L3zzbEl404mXINbIGbZ\
+       zzGnsNmPAEKp7VXP6NxuBqFWRbaFI6dXCTALyG4dh08QWitI7YJPXbVL\
+       nsTh9NM82QNtnVKNhbJPjFgDOEyKJh63DC741VjZwfp7z20bp4pGMJzC\
+       VGRpkYUHeZ+q/gdH5NW3U5s8Gyd1PS7KckshfdIt8EBeztsKc6YeynBO\
+       nuckR49QHgIIJcViqPJPRD8rFuB5PjLOE0mHZKUbJGa1WQRbYwDBLQyy\
+       zg4C4omXjwoo411arE1DUPv6LqIhcM2WJlRf0PsbA84MRtjoV3GT9ZO9\
+       uBp1tTIMz7bK0Wkn1bCjnoo/mFArU25B15h2QoC71UVCyjDhl86eRs+k\
+       8e/pe7E03iUJ0KqD6l4tkpqXkdUjrWegcv2h4N26bMO3j1S80ecwSyCI\
+       JqwWpWZFm8k="
+  on:
+    repo: scaledata/sane-scala
+    condition: $(git tag -l $(get-version.sh) == $(get-version.sh))

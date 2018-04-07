@@ -1,0 +1,4 @@
+<plugin>
+  <name>sane-scala</name>
+  <classname>com.rubrik.SaneScala</classname>
+</plugin>

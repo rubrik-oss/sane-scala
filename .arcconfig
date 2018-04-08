@@ -1,7 +1,8 @@
 {
   "phabricator.uri": "https://phabricator.rubrik.com/",
   "load": [
-    "unit"
+    "unit",
+    "/usr/local/lib/sclinter/lint"
   ],
   "unit.engine": "SaneScalaTestEngine"
 }

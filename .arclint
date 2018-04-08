@@ -1,0 +1,10 @@
+{
+  "linters": {
+    "scala-linter": {
+      "type": "external-json",
+      "include": "(\\.scala$)",
+      "external-json.script":
+        "java -jar /usr/local/lib/sclinter/sclinter.jar $1"
+    }
+  }
+}

@@ -88,7 +88,7 @@ object TestUtil extends Matchers {
     reporter: Reporter
   ): Global = {
     new Global(compilerSettings, reporter) {
-      override def loadRoughPluginsList = List(plugin)
+      override def loadRoughPluginsList: List[Plugin] = List(plugin)
       val global: Global = this
       val plugin: Plugin =
         new SaneScala(global) {

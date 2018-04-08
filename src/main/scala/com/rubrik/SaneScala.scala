@@ -1,6 +1,7 @@
 package com.rubrik
 
 import com.rubrik.sanescala.component.MapGetGet
+import com.rubrik.sanescala.component.TypeSafeEquality
 import java.util
 import scala.collection.SeqLike
 import scala.tools.nsc.Global
@@ -16,7 +17,8 @@ class SaneScala(override val global: Global) extends Plugin {
   override val components: List[PluginComponent] =
     List(
       CustomSyntaxEnforcer,
-      new MapGetGet(global)
+      new MapGetGet(global),
+      new TypeSafeEquality(global)
     )
 
   private object CustomSyntaxEnforcer extends PluginComponent {
@@ -37,7 +39,6 @@ class SaneScala(override val global: Global) extends Plugin {
       def apply(unit: CompilationUnit): Unit = {
         for (tree <- unit.body) {
           showErrorForAtomicPersistToNodeTable(tree)
-          showErrorForUnrelatedTypeComparison(tree)
           showErrorForUnrelatedContains(tree)
           showErrorForInefficientSetUnion(tree)
           showErrorForBangBang(tree)
@@ -68,78 +69,6 @@ class SaneScala(override val global: Global) extends Plugin {
                     "persistUnsafe instead."
                 )
             }
-          case _ =>
-        }
-      }
-
-      /**
-       * When two objects of different types are compared, unlike
-       * scala's default (of showing warnings), we want to show an error.
-       *
-       * Also, we want to be stricter than the scala compiler.
-       * Look at this code, for example:
-       *
-       * <code>
-       *   val a = "rubrik"
-       *   val b = 528
-       *   a == b                            // Scala compiler throws warning
-       *   List(1, 2).filter(_ == "rubrik")  // Scala compiler doesn't even
-       *                                     // throw a warning!
-       * </code>
-       *
-       * In both of the examples above, we desire an error to be thrown
-       * instead. While the first one could be converted into an error by
-       * simply turning warnings into fatal (for which we aren't ready yet),
-       * there doesn't seem to be an easy way of catching the second case.
-       *
-       * [[showErrorForUnrelatedTypeComparison]] ensures that we catch these
-       * cases and show appropriate errors.
-       */
-      private def showErrorForUnrelatedTypeComparison(tree: Tree): Unit = {
-
-        def relatedTypes(a: Tree, b: Tree): Boolean = {
-          a.tpe.widen <:< b.tpe.widen || b.tpe.widen <:< a.tpe.widen
-        }
-
-        // We whitelist comparisons of classes
-        // so that the following is valid:
-        //
-        // val VirtualMachineClass = classOf[VirtualMachine]
-        // val MssqlClass = classOf[Mssql]
-        // wrapper.wrappedClass match {
-        //   case VirtualMachineClass => ...
-        //   case MssqlClass => ...
-        // }
-        def isClassType(a: Tree): Boolean = {
-          a.tpe.widen <:< typeOf[Class[_]]
-        }
-
-        // We whitelist comparison with null
-        // so that the following is valid:
-        //
-        // require(_id != null, "id must not be null")
-        def isNull(a: Tree): Boolean = {
-          a.tpe.widen <:< typeOf[Null]
-        }
-
-        def shouldShowError(a: Tree, b: Tree): Boolean = {
-          !relatedTypes(a, b) &&
-            !(isClassType(a) && isClassType(b)) &&
-            !(isNull(a) || isNull(b))
-        }
-
-        def showError(a: Tree, b: Tree): Unit = {
-          global.reporter
-            .error(
-              tree.pos,
-              s"Comparing objects of different types:" +
-                s"\n\t$a : ${a.tpe.widen}" +
-                s"\n\t$b : ${b.tpe.widen}")
-        }
-
-        tree match {
-          case q"$a == $b" if shouldShowError(a, b) => showError(a, b)
-          case q"$a != $b" if shouldShowError(a, b) => showError(a, b)
           case _ =>
         }
       }

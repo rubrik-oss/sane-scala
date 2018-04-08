@@ -57,6 +57,7 @@ final class MapGetGet(
 
   private def isMapType(tpe: Type): Boolean = {
     (tpe <:< typeOf[Map[_, _]]) ||
+      (tpe <:< typeOf[collection.Map[_, _]]) ||
       (tpe <:< typeOf[collection.mutable.Map[_, _]])
   }
 }

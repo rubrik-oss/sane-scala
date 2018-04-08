@@ -7,7 +7,10 @@ scalaVersion := "2.12.5"
 crossScalaVersions := Seq("2.11.12", scalaVersion.value)
 
 libraryDependencies ++= Seq(
+  "com.beachape" %% "enumeratum" % "1.5.13",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
+  "org.scalatest" %% "scalatest" % "3.0.4" % "test",
 )
 
 def scalacOptionsVersion(version: String): Seq[String] = {

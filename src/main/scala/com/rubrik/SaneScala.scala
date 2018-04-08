@@ -1,5 +1,6 @@
 package com.rubrik
 
+import com.rubrik.sanescala.component.MapGetGet
 import java.util
 import scala.collection.SeqLike
 import scala.tools.nsc.Global
@@ -12,7 +13,11 @@ class SaneScala(override val global: Global) extends Plugin {
 
   override val name = "rubrikScalaStaticChecker"
   override val description = "Static checker for scala codebase"
-  override val components = List[PluginComponent](CustomSyntaxEnforcer)
+  override val components: List[PluginComponent] =
+    List(
+      CustomSyntaxEnforcer,
+      new MapGetGet(global)
+    )
 
   private object CustomSyntaxEnforcer extends PluginComponent {
     override val runsAfter = List("refchecks")
@@ -32,7 +37,6 @@ class SaneScala(override val global: Global) extends Plugin {
       def apply(unit: CompilationUnit): Unit = {
         for (tree <- unit.body) {
           showErrorForAtomicPersistToNodeTable(tree)
-          showErrorForMapGetGet(tree)
           showErrorForUnrelatedTypeComparison(tree)
           showErrorForUnrelatedContains(tree)
           showErrorForInefficientSetUnion(tree)
@@ -63,47 +67,6 @@ class SaneScala(override val global: Global) extends Plugin {
                   "Atomic persists to the Node table are disallowed. Use " +
                     "persistUnsafe instead."
                 )
-            }
-          case _ =>
-        }
-      }
-
-      /**
-       * Consider the following two cases. Clearly the second traceback is
-       * more helpful.
-       *
-       *   val myMap = Map(1 -> 2)
-       *
-       *   myMap.get(99).get
-       *     java.util.NoSuchElementException: None.get
-       *     at scala.None$.get(Option.scala:322)
-       *     at scala.None$.get(Option.scala:320)
-       *     ... 32 elided
-       *
-       *   myMap(99)
-       *     java.util.NoSuchElementException: key not found: 99
-       *     at scala.collection.MapLike$class.default(MapLike.scala:228)
-       *     at scala.collection.AbstractMap.default(Map.scala:59)
-       *     at scala.collection.MapLike$class.apply(MapLike.scala:141)
-       *     at scala.collection.AbstractMap.apply(Map.scala:59)
-       *     ... 32 elided
-       *
-       *
-       * For better logs and stack-traces, we want to detect code that is
-       * written in the fashion of example (1) and throw a compile time error
-       * suggesting that it should be re-written in the fashion of example (2)
-       *
-       * [[showErrorForMapGetGet]] does exactly that.
-       */
-      private def showErrorForMapGetGet(tree: Tree): Unit = {
-        tree match {
-          case q"$map.get($key).get" =>
-            if ((map.tpe <:< typeOf[collection.mutable.Map[_, _]]) ||
-              (map.tpe <:< typeOf[Map[_, _]])) {
-              global.reporter.error(
-                tree.pos,
-                s"\nIncorrect usage Found : $map.get($key).get"
-                  + s"\nRecommended correction: $map($key)")
             }
           case _ =>
         }

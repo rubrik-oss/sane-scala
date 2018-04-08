@@ -1,10 +1,16 @@
 {
   "linters": {
-    "scala-linter": {
+    "sclinter": {
       "type": "external-json",
       "include": "(\\.scala$)",
       "external-json.script":
         "java -jar /usr/local/lib/sclinter/sclinter.jar $1"
+    },
+    "scalastyle": {
+      "type": "scalastyle",
+      "include": "(\\.scala$)",
+      "scalastyle.config": "lint/scalastyle/config.xml",
+      "scalastyle.jar": "/usr/local/lib/scalastyle/scalastyle.jar"
     }
   }
 }

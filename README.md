@@ -7,8 +7,18 @@
 
 ### Prerequisites
 
-Install [`sclinter`](https://github.com/scaledata/sclinter) into
-`/usr/local/lib/sclinter`.
+Install linters:
+```bash
+# Install sclinter
+mkdir -p /usr/local/lib/sclinter
+wget https://github.com/scaledata/sclinter/releases/download/0.1.0/sclinter.zip
+unzip -d /usr/local/lib/sclinter sclinter.zip
+rm sclinter.zip
+
+# Install scalastyle
+mkdir -p /usr/local/lib/scalastyle
+wget -O /usr/local/lib/scalastyle/scalastyle.jar https://goo.gl/XtZqcX
+```
 
 ### Compilation
 

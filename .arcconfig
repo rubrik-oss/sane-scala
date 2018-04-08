@@ -1,6 +1,7 @@
 {
   "phabricator.uri": "https://phabricator.rubrik.com/",
   "load": [
+    "lint",
     "unit",
     "/usr/local/lib/sclinter/lint"
   ],

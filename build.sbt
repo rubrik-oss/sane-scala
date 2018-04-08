@@ -48,13 +48,13 @@ def scalacOptionsVersion(version: String): Seq[String] = {
     "-Ywarn-unused:locals",
     "-Ywarn-unused:params",
     "-Ywarn-unused:privates",
-    "-Ywarn-value-discard"
+    "-Ywarn-value-discard",
   ) ++ version.split("\\.").toSeq match {
     case Seq("2", "12", _) =>
       Seq(
         // These options don't exist in scala 2.11
         "-Xlint:constant",
-        "-Ywarn-extra-implicit"
+        "-Ywarn-extra-implicit",
       )
     case _ =>
       Seq.empty
@@ -64,5 +64,5 @@ def scalacOptionsVersion(version: String): Seq[String] = {
 scalacOptions := scalacOptionsVersion(scalaVersion.value)
 
 scalacOptions in Test --= Seq(
-  "-Ywarn-value-discard"
+  "-Ywarn-value-discard",
 )

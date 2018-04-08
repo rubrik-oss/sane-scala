@@ -69,3 +69,8 @@ scalacOptions := scalacOptionsVersion(scalaVersion.value)
 scalacOptions in Test --= Seq(
   "-Ywarn-value-discard",
 )
+
+testOptions in Test ++= Seq(
+  Tests.Argument("-oDF"),
+  Tests.Argument(TestFrameworks.ScalaTest, "-u", "target/test-reports"),
+)

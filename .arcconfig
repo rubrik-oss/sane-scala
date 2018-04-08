@@ -1,0 +1,7 @@
+{
+  "phabricator.uri": "https://phabricator.rubrik.com/",
+  "load": [
+    "unit"
+  ],
+  "unit.engine": "SaneScalaTestEngine"
+}

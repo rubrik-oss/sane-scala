@@ -14,19 +14,20 @@ import scala.tools.nsc.reporters.Reporter
 import scala.tools.nsc.reporters.StoreReporter
 import scala.tools.nsc.util.ClassPath
 
-/**
- * @param line 1 based index
- * @param col 1 based index
- */
-case class Caret(line: Int, col: Int)
-
-object Caret {
-  def fromPosition(position: Position): Caret = {
-    Caret(position.line, position.column)
-  }
-}
-
 object TestUtil extends Matchers {
+
+  /**
+   * @param line 1 based index
+   * @param col 1 based index
+   */
+  case class Caret(line: Int, col: Int)
+
+  object Caret {
+    def fromPosition(position: Position): Caret = {
+      Caret(position.line, position.column)
+    }
+  }
+
   def extractCarets(annotatedCode: String): Set[Caret] = {
     annotatedCode
       .stripMargin
@@ -66,7 +67,8 @@ object TestUtil extends Matchers {
         .getURLs
         .map(_.getPath)
 
-    // When the tests are run through SBT, "scala-library.jar" in not
+    // Based on https://stackoverflow.com/a/4937135/812448,
+    // when the tests are run through SBT, "scala-library.jar" in not
     // in the classpath, but conveniently, it is easy to guess where
     // it is based on where "scala-compiler.jar" is.
     val scalaLibraryJarPath: Option[String] =

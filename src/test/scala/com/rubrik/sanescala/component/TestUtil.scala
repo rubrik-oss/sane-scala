@@ -2,7 +2,11 @@ package com.rubrik.sanescala.component
 
 import com.rubrik.SaneScala
 import java.net.URLClassLoader
+import java.nio.file.Paths
+import org.scalactic.source
 import org.scalatest.Matchers
+import org.scalatest.exceptions.StackDepthException
+import org.scalatest.exceptions.TestFailedException
 import scala.reflect.internal.util.BatchSourceFile
 import scala.reflect.internal.util.Position
 import scala.tools.nsc.Global
@@ -104,6 +108,10 @@ object TestUtil extends Matchers {
     componentFactory: Global => SaneScalaComponent
   )(
     annotatedCode: String
+  )(
+    implicit file: sourcecode.File,
+    line: sourcecode.Line,
+    fullName: sourcecode.FullName
   ): Unit = {
     val sourceCode = extractSourceCode(annotatedCode)
     val carets = extractCarets(annotatedCode)
@@ -113,6 +121,63 @@ object TestUtil extends Matchers {
     val compiler = getCompiler(componentFactory, reporter)
     new compiler.Run().compileSources(sources)
 
-    reporter.infos.map(_.pos).map(Caret.fromPosition) shouldBe carets
+    val reportedCarets = reporter.infos.map(_.pos).map(Caret.fromPosition)
+    val unreportedCarets = carets -- reportedCarets
+    val unexpectedCarets = reportedCarets -- carets
+    val fileName = Paths.get(file.value).getFileName.toString
+    val test = fullName.value
+
+    def numCaretLinesBefore(lineNum: Int): Int = {
+      carets.map(_.line).count(_ < lineNum)
+    }
+
+    def lineInFile(caret: Caret): Int = {
+      line.value + caret.line + numCaretLinesBefore(caret.line)
+    }
+
+    unreportedCarets.headOption.foreach {
+      unreported =>
+        val unexpected = unexpectedCarets.filter(_.line == unreported.line)
+        val lineNum = lineInFile(unreported)
+
+        val messageFun: StackDepthException => Option[String] =
+          _ => Some {
+            s"Expected error at column ${unreported.col}; but found " +
+              (if (unexpected.isEmpty) {
+                "none "
+              } else {
+                s"on columns ${unexpected.map(_.col).mkString(", ")} "
+              }) +
+              "instead." +
+              // IntelliJ's test-output parsing idiosyncrasies dictate us
+              // to include the following line for easy error navigation:
+              s"\n\tat $test ($fileName:$lineNum)\n"
+          }
+
+        val position = source.Position(fileName, file.value, lineNum)
+        throw new TestFailedException(messageFun, pos = position, cause = None)
+    }
+
+    unexpectedCarets.headOption.foreach {
+      unexpected =>
+        val lineNum = lineInFile(unexpected)
+        val position = source.Position(fileName, file.value, lineNum)
+        reporter.infos
+          .find(info => Caret.fromPosition(info.pos) == unexpected)
+          .map(_.msg)
+          .foreach {
+            message =>
+              val messageFun: StackDepthException => Option[String] =
+                _ => Some {
+                  s"The following compiler message wasn't expected " +
+                    s"at column ${unexpected.col}:\n\n$message" +
+                    // IntelliJ's test-output parsing idiosyncrasies dictate us
+                    // to include the following line for easy error navigation:
+                    s"\n\tat $test ($fileName:$lineNum)\n"
+                }
+              val cause = None
+              throw new TestFailedException(messageFun, cause, position)
+          }
+    }
   }
 }

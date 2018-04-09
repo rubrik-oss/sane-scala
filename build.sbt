@@ -8,6 +8,7 @@ crossScalaVersions := Seq("2.11.12", scalaVersion.value)
 
 libraryDependencies ++= Seq(
   "com.beachape" %% "enumeratum" % "1.5.13",
+  "com.lihaoyi" %% "sourcecode" % "0.1.4" % "test",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
   "org.scalatest" %% "scalatest" % "3.0.4" % "test",

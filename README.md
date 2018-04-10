@@ -1,6 +1,7 @@
 # SaneScala
 
-`SaneScala` is a scala compiler plugin.
+`SaneScala` is a scala compiler plugin that flags troublesome
+anti-patterns in scala code.
 
 
 ## Development

@@ -16,3 +16,4 @@ test:
   stage: test
   script:
     - sbt clean coverage +test coverageReport
+    - bash <(curl -s https://codecov.io/bash) || echo "Coverage upload failed"

@@ -1,4 +1,7 @@
 # SaneScala
+[![Build Status](https://img.shields.io/travis/rubrik-oss/sane-scala.svg)](https://travis-ci.org/rubrik-oss/sane-scala)
+[![Test Coverage](https://img.shields.io/codecov/c/github/rubrik-oss/sane-scala.svg)](https://codecov.io/gh/rubrik-oss/sane-scala)
+[![Codacy grade](https://img.shields.io/codacy/grade/1557966c5c134561bb6d476d294478f5.svg)](https://app.codacy.com/app/sujeet_2/sane-scala)
 
 `SaneScala` is a scala compiler plugin that flags troublesome
 anti-patterns in scala code.

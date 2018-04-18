@@ -5,13 +5,15 @@ branches:
     - master
 
 script:
-  - sbt +package
+  - sbt coverage +test coverageReport
+  - bash <(curl -s https://codecov.io/bash) || echo "Coverage upload failed"
+  - sbt clean +package
 
 before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "Sujeet Kausallya Gholap"
   - git config --local user.email "sujeetgholap+travis@gmail.com"
-  - git tag "$(get-version.sh)"
+  - git tag "$(bash get-version.sh)"
 
 deploy:
   provider: releases
@@ -37,5 +39,5 @@ deploy:
        8e/pe7E03iUJ0KqD6l4tkpqXkdUjrWegcv2h4N26bMO3j1S80ecwSyCI\
        JqwWpWZFm8k="
   on:
-    repo: scaledata/sane-scala
-    condition: $(git tag -l $(get-version.sh) == $(get-version.sh))
+    repo: rubrik-oss/sane-scala
+    condition: '"$(git tag -l $(bash get-version.sh))" = ""'

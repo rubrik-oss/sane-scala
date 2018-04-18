@@ -1,5 +1,4 @@
 # SaneScala
-[![Build Status](https://gitlab.com/gholap/sane-scala/badges/master/build.svg)](https://gitlab.com/gholap/sane-scala/pipelines)
 
 `SaneScala` is a scala compiler plugin that flags troublesome
 anti-patterns in scala code.
